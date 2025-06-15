@@ -1,0 +1,132 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 0;
+    color: #333;
+}
+
+header {
+    background-color: #007bff;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    font-weight: 600;
+}
+
+#logout-btn {
+    background: #ff4d4f;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+#logout-btn:hover {
+    background: #e04345;
+}
+
+.container {
+    max-width: 700px;
+    margin: 2rem auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgb(0 0 0 / 0.1);
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
+}
+
+input,
+textarea {
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+button[type='submit'] {
+    padding: 0.75rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+button[type='submit']:hover {
+    background-color: #0056b3;
+}
+
+.note {
+    background: #f7f9fc;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgb(0 0 0 / 0.05);
+    position: relative;
+}
+
+.note h3 {
+    margin: 0 0 0.5rem 0;
+}
+
+.note small {
+    display: block;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
+.note p {
+    white-space: pre-wrap;
+    margin: 0 0 1rem 0;
+}
+
+.note-actions {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.note-actions button {
+    background: none;
+    border: none;
+    margin-left: 8px;
+    cursor: pointer;
+    color: #007bff;
+    font-weight: 600;
+    transition: color 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.note-actions button:hover {
+    color: #0056b3;
+}
