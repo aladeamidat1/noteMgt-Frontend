@@ -1,4 +1,4 @@
-
+    const apiBase = 'http://localhost:8080/api';
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const showLogin = document.getElementById('show-login');
@@ -36,7 +36,7 @@
     if (response.ok) {
     // Store userId and name
     localStorage.setItem('userId', data.id)
-        localStorage.setItem('name', data.name || username);
+    localStorage.setItem('name', data.name);
     alert('Login successful!');
     window.location.href = 'dashboard.html';
 } else {
@@ -62,14 +62,23 @@
     body: JSON.stringify({ name, username, password }),
 });
 
-    const data = await response.json();
-    alert(data.message || 'Registration successful!');
-    if(response.ok){
-    // After successful registration, automatically login:
-    localStorage.setItem('userId', data.user.id);
-    localStorage.setItem('name', name);
-    window.location.href = 'dashboard.html';
-}
+   let data;
+    if (response.ok) {
+      data = await response.json();
+      alert(data.message || 'Registration successful!');
+
+      if (data.user && data.user.id) {
+        localStorage.setItem('userId', data.user.id);
+        localStorage.setItem('name', data.user.name);
+        window.location.href = 'dashboard.html';
+      } else {
+        alert('User data missing in response.');
+      }
+    } else {
+      const errorText = await response.text(); // Not JSON
+      console.error('Registration failed:', errorText);
+      alert(errorText || 'Registration failed.');
+    }
 } catch (err) {
     console.error('Registration error:', err);
     alert('Registration failed. Check the console for details.');

@@ -45,7 +45,7 @@ function renderNotes(notes) {
     notes.forEach(note => {
         const noteEl = document.createElement('div');
         noteEl.className = 'note';
-
+ 
         noteEl.innerHTML = `
       <h3>${escapeHtml(note.title)}</h3>
       <small>Last updated: ${formatDate(note.updatedAt || note.createdAt)}</small>
@@ -173,7 +173,8 @@ window.deleteNote = async (id) => {
 // Logout
 logoutBtn.addEventListener('click', () => {
     if(confirm('Are you sure you want to logout?')){
-        localStorage.removeItem(userId)
+        localStorage.removeItem(userId);
+        localStorage.removeItem('name');
         window.location.href = 'index.html';
     }
 });
