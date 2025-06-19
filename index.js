@@ -66,14 +66,8 @@
     if (response.ok) {
       data = await response.json();
       alert(data.message || 'Registration successful!');
-
-      if (data.user && data.user.id) {
-        localStorage.setItem('userId', data.user.id);
-        localStorage.setItem('name', data.user.name);
         window.location.href = 'dashboard.html';
-      } else {
-        alert('User data missing in response.');
-      }
+    
     } else {
       const errorText = await response.text(); // Not JSON
       console.error('Registration failed:', errorText);

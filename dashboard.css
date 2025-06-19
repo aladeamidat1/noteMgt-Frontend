@@ -4,15 +4,15 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f0f2f5;
+    background-image: url('image/notebook.jpg');
     margin: 0;
     padding: 0;
     color: #333;
 }
 
 header {
-    background-color: #007bff;
-    color: white;
+    background-color: #3f0e0171;
+    color: rgb(255, 255, 255);
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -25,7 +25,7 @@ header h1 {
 }
 
 #logout-btn {
-    background: #ff4d4f;
+    background: #7c080a;
     border: none;
     color: white;
     padding: 0.5rem 1rem;
@@ -42,7 +42,7 @@ header h1 {
 .container {
     max-width: 700px;
     margin: 2rem auto;
-    background: white;
+    background:  rgb(58, 2, 2);
     padding: 2rem;
     border-radius: 12px;
     box-shadow: 0 8px 16px rgb(0 0 0 / 0.1);
@@ -73,7 +73,7 @@ textarea:focus {
 
 button[type='submit'] {
     padding: 0.75rem;
-    background-color: #007bff;
+    background-color: #5e1005;
     color: white;
     border: none;
     font-weight: 600;
@@ -83,7 +83,7 @@ button[type='submit'] {
 }
 
 button[type='submit']:hover {
-    background-color: #0056b3;
+    background-color: #a30a0d;
 }
 
 .note {
@@ -121,7 +121,7 @@ button[type='submit']:hover {
     border: none;
     margin-left: 8px;
     cursor: pointer;
-    color: #007bff;
+    color: #000408;
     font-weight: 600;
     transition: color 0.3s ease;
     font-size: 0.9rem;

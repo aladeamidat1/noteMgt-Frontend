@@ -8,6 +8,9 @@ const noteContentInput = document.getElementById('note-content');
 const userNameSpan = document.getElementById('user-name');
 const logoutBtn = document.getElementById('logout-btn');
 
+let editingNoteId = null; // Track which note is being edited
+
+// Check if user is logged in
 if (!userId) {
     alert('You are not logged in! Redirecting to login page...');
     window.location.href = 'index.html';
@@ -20,6 +23,14 @@ function formatDate(dateString) {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
+
+window.editNote = (id, title, content) => {
+    editingNoteId = id;
+    noteTitleInput.value = title;
+    noteContentInput.value = content;
+    noteForm.querySelector('button[type="submit"]').textContent = 'Update Note';
+};
+
 
 // Fetch and render notes
 async function fetchNotes() {
@@ -77,73 +88,52 @@ function escapeBackticks(text) {
 // Add new note
 noteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
     const title = noteTitleInput.value.trim();
     const content = noteContentInput.value.trim();
 
-    if (!title || !content) return alert('Please fill in both title and content.');
-
-    try {
-        const res = await fetch(`${apiBase}/addNotes`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, content, userId }),
-        });
-
-        if (!res.ok) {
-            const errData = await res.json();
-            throw new Error(errData.message || 'Failed to add note');
-        }
-
-        alert('Note added successfully!');
-        noteTitleInput.value = '';
-        noteContentInput.value = '';
-        fetchNotes();
-    } catch (err) {
-        alert('Error adding note: ' + err.message);
+    if (!title || !content) {
+        return alert('Please fill in both title and content.');
     }
-});
-
-let editingNoteId = null;
-
-// Edit note function: populate form with existing data
-window.editNote = (id, title, content) => {
-    editingNoteId = id;
-    noteTitleInput.value = title;
-    noteContentInput.value = content;
-    noteForm.querySelector('button[type="submit"]').textContent = 'Update Note';
-};
-
-// Update note on submit when editing
-noteForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (!editingNoteId) return; // Not editing, already handled above for new notes
-
-    const title = noteTitleInput.value.trim();
-    const content = noteContentInput.value.trim();
-
-    if (!title || !content) return alert('Please fill in both title and content.');
 
     try {
-        const res = await fetch(`${apiBase}/${editingNoteId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, content, userId }),
-        });
+        let res;
+
+        if (editingNoteId) {
+            // Update note
+            res = await fetch(`${apiBase}/${editingNoteId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content, userId }),
+            });
+        } else {
+            // Add new note
+            res = await fetch(`${apiBase}/addNotes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, content, userId }),
+            });
+        }
 
         if (!res.ok) {
             const errData = await res.json();
-            throw new Error(errData.message || 'Failed to update note');
+            throw new Error(errData.message || 'Failed to save note');
         }
 
-        alert('Note updated successfully!');
-        editingNoteId = null;
-        noteForm.querySelector('button[type="submit"]').textContent = 'Add Note';
+        if (editingNoteId) {
+            alert('Note updated successfully!');
+            editingNoteId = null;
+            noteForm.querySelector('button[type="submit"]').textContent = 'Add Note';
+        } else {
+            alert('Note added successfully!');
+        }
+
         noteTitleInput.value = '';
         noteContentInput.value = '';
         fetchNotes();
+
     } catch (err) {
-        alert('Error updating note: ' + err.message);
+        alert('Error saving note: ' + err.message);
     }
 });
 
@@ -173,7 +163,7 @@ window.deleteNote = async (id) => {
 // Logout
 logoutBtn.addEventListener('click', () => {
     if(confirm('Are you sure you want to logout?')){
-        localStorage.removeItem(userId);
+        localStorage.removeItem('userId');
         localStorage.removeItem('name');
         window.location.href = 'index.html';
     }
