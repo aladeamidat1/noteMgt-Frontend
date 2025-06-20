@@ -7,35 +7,27 @@ const noteTitleInput = document.getElementById('note-title');
 const noteContentInput = document.getElementById('note-content');
 const userNameSpan = document.getElementById('user-name');
 const logoutBtn = document.getElementById('logout-btn');
+const submitBtn = noteForm.querySelector('button[type="submit"]');
 
-let editingNoteId = null; // Track which note is being edited
+let editingNoteId = null;
 
-// Check if user is logged in
+
 if (!userId) {
     alert('You are not logged in! Redirecting to login page...');
     window.location.href = 'index.html';
 }
 
-userNameSpan.textContent = userName || 'User';
+userNameSpan.textContent = userName;
 
-// Format timestamp nicely
+
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
-window.editNote = (id, title, content) => {
-    editingNoteId = id;
-    noteTitleInput.value = title;
-    noteContentInput.value = content;
-    noteForm.querySelector('button[type="submit"]').textContent = 'Update Note';
-};
 
-
-// Fetch and render notes
 async function fetchNotes() {
     try {
-        console.log(userId)
         const res = await fetch(`${apiBase}/users/${userId}/notes`);
         if (!res.ok) throw new Error('Failed to fetch notes');
         const notes = await res.json();
@@ -45,7 +37,7 @@ async function fetchNotes() {
     }
 }
 
-// Render notes in the DOM
+
 function renderNotes(notes) {
     notesContainer.innerHTML = '';
     if (notes.length === 0) {
@@ -56,22 +48,20 @@ function renderNotes(notes) {
     notes.forEach(note => {
         const noteEl = document.createElement('div');
         noteEl.className = 'note';
- 
         noteEl.innerHTML = `
-      <h3>${escapeHtml(note.title)}</h3>
-      <small>Last updated: ${formatDate(note.updatedAt || note.createdAt)}</small>
-      <p>${escapeHtml(note.content)}</p>
-      <div class="note-actions">
-        <button onclick="editNote('${note.id}', '${escapeQuotes(note.title)}', \`${escapeBackticks(note.content)}\`)">Edit</button>
-        <button onclick="deleteNote('${note.id}')">Delete</button>
-      </div>
-    `;
-
+            <h3>${escapeHtml(note.title)}</h3>
+            <small>Last updated: ${formatDate(note.updatedAt || note.createdAt)}</small>
+            <p>${escapeHtml(note.content)}</p>
+            <div class="note-actions">
+                <button onclick="editNote('${note.id}', '${escapeQuotes(note.title)}', \`${escapeBackticks(note.content)}\`)">Edit</button>
+                <button onclick="deleteNote('${note.id}')">Delete</button>
+            </div>
+        `;
         notesContainer.appendChild(noteEl);
     });
 }
 
-// Escape helpers to prevent breaking JS when injecting content
+
 function escapeHtml(text) {
     return text
         .replace(/&/g, "&amp;")
@@ -85,67 +75,74 @@ function escapeBackticks(text) {
     return text.replace(/`/g, '\\`');
 }
 
-// Add new note
+
 noteForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
     const title = noteTitleInput.value.trim();
     const content = noteContentInput.value.trim();
 
-    if (!title || !content) {
-        return alert('Please fill in both title and content.');
-    }
+    if (!title || !content) return alert('Please fill in both title and content.');
 
     try {
-        let res;
-
         if (editingNoteId) {
-            // Update note
-            res = await fetch(`${apiBase}/${editingNoteId}`, {
+        
+            const res = await fetch(`${apiBase}/${editingNoteId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, content, userId }),
             });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || 'Failed to update note');
+            }
+            alert('Note updated successfully!');
         } else {
-            // Add new note
-            res = await fetch(`${apiBase}/addNotes`, {
+            
+            const res = await fetch(`${apiBase}/addNotes`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title, content, userId }),
             });
-        }
-
-        if (!res.ok) {
-            const errData = await res.json();
-            throw new Error(errData.message || 'Failed to save note');
-        }
-
-        if (editingNoteId) {
-            alert('Note updated successfully!');
-            editingNoteId = null;
-            noteForm.querySelector('button[type="submit"]').textContent = 'Add Note';
-        } else {
+            console.log(res)
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.message || 'Failed to add note');
+            }
             alert('Note added successfully!');
         }
 
+        
+        editingNoteId = null;
         noteTitleInput.value = '';
         noteContentInput.value = '';
+        submitBtn.textContent = 'Add Note';
         fetchNotes();
-
     } catch (err) {
-        alert('Error saving note: ' + err.message);
+        alert('Error: ' + err.message);
     }
 });
 
-// Delete note
-window.deleteNote = async (id) => {
+
+window.editNote = (id, title, content) => {
+    editingNoteId = id;
+    noteTitleInput.value = title;
+    noteContentInput.value = content;
+    submitBtn.textContent = 'Update Note';
+};
+
+
+window.deleteNote = async (noteId) => {
     if (!confirm('Are you sure you want to delete this note?')) return;
 
     try {
-        const res = await fetch(`${apiBase}/${id}`, {
+        const res = await fetch(`${apiBase}/${noteId}`, {
             method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId }),
+            headers: {
+                'Content-Type': 'application/json',
+                'userId': userId
+            },
+
         });
 
         if (!res.ok) {
@@ -160,14 +157,14 @@ window.deleteNote = async (id) => {
     }
 };
 
-// Logout
+
 logoutBtn.addEventListener('click', () => {
-    if(confirm('Are you sure you want to logout?')){
+    if(confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('userId');
         localStorage.removeItem('name');
         window.location.href = 'index.html';
     }
 });
 
-// On page load fetch notes
+
 fetchNotes();

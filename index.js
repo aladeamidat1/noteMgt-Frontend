@@ -1,4 +1,4 @@
-    const apiBase = 'http://localhost:8080/api';
+const apiBase = 'http://localhost:8080/api';
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
     const showLogin = document.getElementById('show-login');
@@ -28,15 +28,16 @@
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
-    credentials: "include"
+    // credentials: "include"
 });
-
+    console.log(username)
     const data = await response.json();
     console.log(data)
     if (response.ok) {
     // Store userId and name
     localStorage.setItem('userId', data.id)
-    localStorage.setItem('name', data.name);
+    localStorage.setItem('name', username);
+    console.log('name')
     alert('Login successful!');
     window.location.href = 'dashboard.html';
 } else {
@@ -54,22 +55,18 @@
     const name = document.getElementById('register-name').value;
     const username = document.getElementById('register-username').value;
     const password = document.getElementById('register-password').value;
-
     try {
-    const response = await fetch('http://localhost:8080/api/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, username, password }),
+        const response = await fetch('http://localhost:8080/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, username, password }),
 });
 
-   let data;
     if (response.ok) {
-      data = await response.json();
+      const data = await response.json();
       alert(data.message || 'Registration successful!');
-        window.location.href = 'dashboard.html';
-    
     } else {
-      const errorText = await response.text(); // Not JSON
+      const errorText = await response.text(); 
       console.error('Registration failed:', errorText);
       alert(errorText || 'Registration failed.');
     }
@@ -78,4 +75,3 @@
     alert('Registration failed. Check the console for details.');
 }
 });
-
